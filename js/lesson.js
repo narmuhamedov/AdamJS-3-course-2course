@@ -115,3 +115,47 @@ const converter = (element, target1, target2, currentType)=>{
 converter(somInput, usdInput, eurInput, 'som')
 converter(usdInput, somInput, eurInput, 'usd')
 converter(eurInput, somInput, usdInput, 'eur')
+
+
+//weather
+const cityNameInput = document.querySelector('.cityName');
+const city = document.querySelector('.city');
+const temp = document.querySelector('.temp');
+
+const WEATHER_API = 'https://api.openweathermap.org/data/2.5/weather'; // используйте HTTPS
+const API_KEY = '77faf079bcfb0d5bc83ddfc69b0c4f57';
+
+cityNameInput.oninput = async (event) => {
+    const cityName = event.target.value.trim();
+    
+    // Если поле пустое, очищаем данные
+    if (!cityName) {
+        city.innerHTML = 'Введите город';
+        temp.innerHTML = '...';
+        return;
+    }
+
+    try {
+        const response = await fetch(`${WEATHER_API}?q=${cityName}&appid=${API_KEY}&units=metric&lang=ru`);
+        
+        if (!response.ok) {
+            throw new Error(`Ошибка: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Проверяем, что город найден
+        if (data.cod === 200) {
+            city.innerHTML = data.name + ', ' + data.sys.country;
+            temp.innerHTML = Math.round(data.main.temp) + "&deg;C";
+        } else {
+            city.innerHTML = 'Город не найден';
+            temp.innerHTML = '...';
+        }
+        
+    } catch(error) {
+        console.error('Ошибка:', error);
+        city.innerHTML = 'Ошибка загрузки';
+        temp.innerHTML = '...';
+    }
+};
